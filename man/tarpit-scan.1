@@ -1,0 +1,45 @@
+.TH man 1 "05 Feb 2015" "1.0" "tarpit-scan man page"
+
+.SH NAME
+tarpit-scan \- detect open ports despite of TARPIT or TARPIT --honeypot rules
+
+.SH SYNOPSIS
+tarpit-scan [--honeypot] [--iface <iface>] [--tmout <timeout>] [--help] [--syn] [--connect] [--reset] --port <port range or sequence> <ip>
+
+.SH DESCRIPTION
+tarpit-scan is a slow port scanner that detects open ports despites of TARPIT or TARPIT --honeyport rules.
+TARPIT sends a SYN/ACK to SYN scan, even if the port is closed. By default, TCP window size is set to a low
+value to keep the scanner system on hold. The --honeypot option sends a normal TCP window size.
+
+In order to detect open port despite of TARPIT rules, a full TCP-connection is performed and is immediately
+closed with a TCP RST packet. tarpit-scan detects open ports by evaluating the window size of the SYN/ACK
+response (by default, a port is considered open if TCP window size is greater than 10).
+
+In order to detect open port despite of TARPIT --honeypot rules, a full TCP-connection is performed, and is
+immediately closed with a TCP FIN packet. tarpit detects open ports by listening for FIN/ACK response.
+
+.SH OPTIONS
+  --honeypot         detection is based on FIN/ACK server response when closing connection instead of window size.
+
+  --iface <iface>
+  -i <iface>         interface to listen on
+
+  --tmout <timeout>
+  -t <timeout>       timeout in seconds. This is the time to wait for response after every packets were sent.
+
+  --help             display syntax
+
+  --ports <ports>
+  -p <ports>         port range or sequence to scan.
+                     Ex: -p 22; -p 1-65535; -p 53,111,137,21-25,80,139,8080
+
+  --reset            close established connection with a RST instead of a FIN. Incompatible with --syn and --honeypot. Force --connect.
+
+  --syn              perform syn scan (the default). Incompatible with --connect or --honeypot.
+
+  --connect          force connect scan. Incompatible with --syn.
+
+  <ip>               ip address to scan. This must be an IP and not a FQDN.  Name resolution can be performed inline with another tool.
+                     Ex: tarpit-scan -p 21-25 $(dig +short test.example)
+.SH SEE ALSO
+nmap(1), hping(8)
